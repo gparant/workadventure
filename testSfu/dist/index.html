@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+              content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <base href="/">
+        <link rel="stylesheet" href="/resources/style/style.css">
+        <title>Document</title>
+    </head>
+    <body id="body" style="margin: 0">
+        <div id="webRtc" class="webrtc">
+            <div id="activeCam" class="activeCam">
+                <div id="div-myCamVideo" class="video-container">
+                    <video id="myCamVideo" autoplay muted></video>
+                </div>
+            </div>
+            <div class="btn-cam-action">
+                <div class="btn-micro">
+                    <img id="microphone" src="resources/logos/microphone.svg">
+                    <img id="microphone-close" src="resources/logos/microphone-close.svg">
+                </div>
+                <div class="btn-video">
+                    <img id="cinema" src="resources/logos/cinema.svg">
+                    <img id="cinema-close" src="resources/logos/cinema-close.svg">
+                </div>
+                <!--<div class="btn-call">
+                    <img src="resources/logos/phone.svg">
+                </div>-->
+            </div>
+        </div>
+        <audio id="audio-webrtc-in">
+            <source src="/resources/objects/webrtc-in.mp3" type="audio/mp3">
+        </audio>
+    </body>
+</html>
