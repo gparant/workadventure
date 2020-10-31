@@ -72,7 +72,7 @@ export interface ITiledMapObject {
     gid: number;
     height: number;
     name: string;
-    properties: {[key: string]: string};
+    properties: Array<{name: string, value: string}>,
     rotation: number;
     type: string;
     visible: boolean;

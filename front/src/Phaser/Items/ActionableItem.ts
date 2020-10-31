@@ -9,11 +9,11 @@ import {GameScene} from "../Game/GameScene";
 type EventCallback = (state: unknown, parameters: unknown) => void;
 
 export class ActionableItem {
-    private readonly activationRadiusSquared : number;
-    private isSelectable: boolean = false;
-    private callbacks: Map<string, Array<EventCallback>> = new Map<string, Array<EventCallback>>();
+    protected readonly activationRadiusSquared : number;
+    protected isSelectable: boolean = false;
+    protected callbacks: Map<string, Array<EventCallback>> = new Map<string, Array<EventCallback>>();
 
-    public constructor(private id: number, private sprite: Sprite, private eventHandler: GameScene, private activationRadius: number, private onActivateCallback: (item: ActionableItem) => void) {
+    public constructor(protected id: number, protected sprite: Sprite, protected eventHandler: GameScene, protected activationRadius: number, protected onActivateCallback: (item: ActionableItem) => void) {
         this.activationRadiusSquared = activationRadius * activationRadius;
     }
 

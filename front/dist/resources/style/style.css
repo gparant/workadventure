@@ -728,3 +728,35 @@ div.action p.action-body{
     50% {bottom: 30px;}
     100% {bottom: 40px;}
 }
+
+/** Object style **/
+div.object{
+    background: #000000d4;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    overflow: scroll;
+}
+div.object p.title{
+    margin: 4%;
+    font-size: 38px;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+}
+div.object img{
+    text-align: center;
+    width: 200px;
+    height: 200px;
+    margin-left: calc(50% - 100px);
+}
+div.object p.body{
+    width: 20%;
+    margin-left: calc(50% - 10%);
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+}

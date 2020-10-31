@@ -508,7 +508,7 @@ export class MediaManager {
         return elem as T;
     }
 
-    private showReportModal(userId: string, userName: string, reportCallBack: ReportCallback){
+    public showReportModal(userId: string, userName: string, reportCallBack: ReportCallback){
         //create report text area
         const mainContainer = this.getElementByIdOrFail<HTMLDivElement>('main-container');
 

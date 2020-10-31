@@ -54,6 +54,7 @@ import {ConsoleGlobalMessageManager} from "../../Administration/ConsoleGlobalMes
 import {ResizableScene} from "../Login/ResizableScene";
 import {Room} from "../../Connexion/Room";
 import {jitsiFactory} from "../../WebRtc/JitsiFactory";
+import {ObjectAction} from "../../EscapeGame/ObjectAction";
 
 export interface GameSceneInitInterface {
     initPosition: PointInterface|null
@@ -136,7 +137,7 @@ export class GameScene extends ResizableScene implements CenterListener {
     private presentationModeSprite!: Sprite;
     private chatModeSprite!: Sprite;
     private gameMap!: GameMap;
-    private actionableItems: Map<number, ActionableItem> = new Map<number, ActionableItem>();
+    private actionableItems: Map<number|string, ActionableItem> = new Map<number, ActionableItem>();
     // The item that can be selected by pressing the space key.
     private outlinedItem: ActionableItem|null = null;
     private userInputManager!: UserInputManager;
@@ -201,6 +202,9 @@ export class GameScene extends ResizableScene implements CenterListener {
     // FIXME: we need to put a "unknown" instead of a "any" and validate the structure of the JSON we are receiving.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private async onMapLoad(data: any): Promise<void> {
+        //create input to move
+        this.userInputManager = new UserInputManager(this);
+
         // Triggered when the map is loaded
         // Load tiles attached to the map recursively
         this.mapFile = data.data;
@@ -237,13 +241,36 @@ export class GameScene extends ResizableScene implements CenterListener {
 
         for (const [itemType, objectsOfType] of objects) {
             // FIXME: we would ideally need for the loader to WAIT for the import to be performed, which means writing our own loader plugin.
-
             let itemFactory: ItemFactoryInterface;
-
             switch (itemType) {
                 case 'computer': {
                     const module = await import('../Items/Computer/computer');
                     itemFactory = module.default;
+                    break;
+                }
+                case 'EscapeGameObject': {
+                    let objectAction = objectsOfType[0];
+                    const properties = (objectAction.properties as Array<{name: string, value: string}>);
+                    const name = properties.find((c) => c.name = 'name');
+                    const img = properties.find((c) => c.name = 'img');
+                    const description = properties.find((c) => c.name = 'decription');
+                    if (
+                        !name
+                        || !img
+                        || !description
+                    ) {
+                        throw new Error('Could not load object');
+                    }
+                    const escapeGameObject = new ObjectAction(
+                        name.value,
+                        img.value,
+                        description.value,
+                    );
+
+                    this.actionableItems.set(`objectAction-${name.name}`,
+                        escapeGameObject.factory(this, objectAction, null, this.userInputManager)
+                    );
+                    itemFactory = escapeGameObject;
                     break;
                 }
                 default:
@@ -384,9 +411,6 @@ export class GameScene extends ResizableScene implements CenterListener {
 
         //initialise list of other player
         this.MapPlayers = this.physics.add.group({immovable: true});
-
-        //create input to move
-        this.userInputManager = new UserInputManager(this);
 
         //notify game manager can to create currentUser in map
         this.createCurrentPlayer();
