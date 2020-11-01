@@ -248,7 +248,7 @@ export class GameScene extends ResizableScene implements CenterListener {
                     itemFactory = module.default;
                     break;
                 }
-                case 'EscapeGameObject': {
+                case 'EscapeIndicationGameObject': {
                     let objectAction = objectsOfType[0];
                     const properties = (objectAction.properties as Array<{name: string, value: string}>);
                     const name = properties.find((c) => c.name = 'name');
@@ -387,7 +387,7 @@ export class GameScene extends ResizableScene implements CenterListener {
             if (this.startX === undefined) {
                 // If we have no start layer specified or if the hash passed does not exist, let's go with the default start position.
                 for (const layer of this.mapFile.layers) {
-                    if (layer.type === 'tilelayer' && layer.name === "start") {
+                    if (layer.type === 'tilelayer' && layer.name.toLowerCase() === "start") {
                         const startPosition = this.startUser(layer);
                         this.startX = startPosition.x;
                         this.startY = startPosition.y;

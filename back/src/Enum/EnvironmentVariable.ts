@@ -8,8 +8,8 @@ const ADMIN_API_TOKEN = process.env.ADMIN_API_TOKEN || 'myapitoken';
 const MAX_USERS_PER_ROOM = parseInt(process.env.MAX_USERS_PER_ROOM || '') || 600;
 const CPU_OVERHEAT_THRESHOLD = Number(process.env.CPU_OVERHEAT_THRESHOLD) || 80;
 const JITSI_URL : string|undefined = (process.env.JITSI_URL === '') ? undefined : process.env.JITSI_URL;
-const JITSI_ISS = process.env.JITSI_ISS || '';
-const SECRET_JITSI_KEY = process.env.SECRET_JITSI_KEY || '';
+const JITSI_ISS = process.env.JITSI_ISS || 'test';
+const SECRET_JITSI_KEY = process.env.SECRET_JITSI_KEY || 'test';
 
 export {
     SECRET_KEY,
