@@ -516,6 +516,7 @@ export class GameScene extends ResizableScene implements CenterListener {
                     } else {
                         this.startJitsi(newValue as string);
                     }
+                    layoutManager.removeActionButton('jitsiRoom', this.userInputManager);
                 }, this.userInputManager);
             }
         });
