@@ -39,7 +39,7 @@ export class ObjectAction implements ItemFactoryInterface{
 
         this.divHtmlElement = document.createElement('div');
         this.divHtmlElement.classList.add('object');
-        this.divHtmlElement.id = name;
+        this.divHtmlElement.id = name.toLowerCase().replace(' ', '');
         this.divHtmlElement.style.display = 'none';
 
         const pTitle: HTMLParagraphElement = document.createElement('p');
@@ -90,5 +90,12 @@ export class ObjectAction implements ItemFactoryInterface{
             layoutManager.removeActionButton(`openObject-${this.name}`, userInputManager);
             this.disable();
         });
+    }
+
+    public static removeObjectAction() {
+        let objects = document.getElementsByClassName('object');
+        for (let object of objects) {
+            object.remove();
+        }
     }
 }

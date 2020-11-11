@@ -241,61 +241,67 @@ export class GameScene extends ResizableScene implements CenterListener {
 
         for (const [itemType, objectsOfType] of objects) {
             // FIXME: we would ideally need for the loader to WAIT for the import to be performed, which means writing our own loader plugin.
-            let itemFactory: ItemFactoryInterface;
+            let itemsFactory: ItemFactoryInterface[] = new Array<ItemFactoryInterface>();
             switch (itemType) {
                 case 'computer': {
                     const module = await import('../Items/Computer/computer');
-                    itemFactory = module.default;
+                    itemsFactory.push( module.default );
                     break;
                 }
-                case 'EscapeIndicationGameObject': {
-                    let objectAction = objectsOfType[0];
-                    const properties = (objectAction.properties as Array<{name: string, value: string}>);
-                    const name = properties.find((c) => c.name = 'name');
-                    const img = properties.find((c) => c.name = 'img');
-                    const description = properties.find((c) => c.name = 'decription');
-                    if (
-                        !name
-                        || !img
-                        || !description
-                    ) {
-                        throw new Error('Could not load object');
-                    }
-                    const escapeGameObject = new ObjectAction(
-                        name.value,
-                        img.value,
-                        description.value,
-                    );
+                /* TODO fix it to manager multi object
+                case 'EscapeIndicationGameObject': { //init all EscapeGame object
+                    for (let objectAction of objectsOfType) {
+                        const properties = (objectAction.properties as Array<{ name: string, value: string }>);
+                        const name = properties.find((c) => c.name = 'name');
+                        const img = properties.find((c) => c.name = 'img');
+                        const description = properties.find((c) => c.name = 'decription');
+                        if (
+                            !name
+                            || !img
+                            || !description
+                        ) {
+                            throw new Error('Could not load object');
+                        }
+                        const escapeGameObject = new ObjectAction(
+                            name.value,
+                            img.value,
+                            description.value,
+                        );
 
-                    this.actionableItems.set(`objectAction-${name.name}`,
-                        escapeGameObject.factory(this, objectAction, null, this.userInputManager)
-                    );
-                    itemFactory = escapeGameObject;
+                        this.actionableItems.set(`objectAction-${name.name}`,
+                            escapeGameObject.factory(this, objectAction, null, this.userInputManager)
+                        );
+                        itemsFactory.push(escapeGameObject);
+                    }
                     break;
-                }
+                }*/
                 default:
                     throw new Error('Unsupported object type: "'+ itemType +'"');
             }
 
-            itemFactory.preload(this.load);
+            //preload all object
+            for (const itemFactory of itemsFactory) {
+                itemFactory.preload(this.load);
+            }
+
             this.load.start(); // Let's manually start the loader because the import might be over AFTER the loading ends.
 
             this.load.on('complete', () => {
                 // FIXME: the factory might fail because the resources might not be loaded yet...
                 // We would need to add a loader ended event in addition to the createPromise
                 this.createPromise.then(async () => {
-                    itemFactory.create(this);
+                    for (const itemFactory of itemsFactory) {
+                        itemFactory.create(this);
 
-                    const roomJoinedAnswer = await this.connectionAnswerPromise;
+                        const roomJoinedAnswer = await this.connectionAnswerPromise;
 
-                    for (const object of objectsOfType) {
-                        // TODO: we should pass here a factory to create sprites (maybe?)
-
-                        // Do we have a state for this object?
-                        const state = roomJoinedAnswer.items[object.id];
-
-                        const actionableItem = itemFactory.factory(this, object, state);
-                        this.actionableItems.set(actionableItem.getId(), actionableItem);
+                        for (const object of objectsOfType) {
+                            // TODO: we should pass here a factory to create sprites (maybe?)
+                            // Do we have a state for this object?
+                            const state = roomJoinedAnswer.items[object.id];
+                            const actionableItem = itemFactory.factory(this, object, state);
+                            this.actionableItems.set(actionableItem.getId(), actionableItem);
+                        }
                     }
                 });
             });
@@ -526,6 +532,30 @@ export class GameScene extends ResizableScene implements CenterListener {
                 this.connection.setSilent(false);
             } else {
                 this.connection.setSilent(true);
+            }
+        });
+
+        this.gameMap.onPropertyChange('EscapeIndicationGameObject', (newValue, oldValue) => {
+            if (newValue === undefined || newValue === false || newValue === '') {
+                ObjectAction.removeObjectAction();
+            } else {
+                const properties = JSON.parse(newValue.toString());
+                const name = properties.name;
+                const img = properties.img;
+                const description = properties.description;
+                if (
+                    !name
+                    || !img
+                    || !description
+                ) {
+                    throw new Error('Could not load object');
+                }
+                const escapeGameObject = new ObjectAction(
+                    name,
+                    img,
+                    description,
+                );
+                escapeGameObject.active();
             }
         });
 
