@@ -16,6 +16,11 @@ class CoWebsiteManager {
     private opened: iframeStates = iframeStates.closed; 
 
     private observers = new Array<CoWebsiteStateChangedCallback>();
+    /**
+     * Quickly going in and out of an iframe trigger can create conflicts between the iframe states.
+     * So we use this promise to queue up every cowebsite state transition
+     */
+    private currentOperationPromise: Promise<void> = Promise.resolve(); 
     
     private close(): HTMLDivElement {
         const cowebsiteDiv = HtmlUtils.getElementByIdOrFail<HTMLDivElement>(cowebsiteDivId);
@@ -52,12 +57,12 @@ class CoWebsiteManager {
         const onTimeoutPromise = new Promise((resolve) => {
             setTimeout(() => resolve(), 2000);
         });
-        Promise.race([onloadPromise, onTimeoutPromise]).then(() => {
+        this.currentOperationPromise = this.currentOperationPromise.then(() =>Promise.race([onloadPromise, onTimeoutPromise])).then(() => {
             this.open();
             setTimeout(() => {
                 this.fire();
             }, animationTime)
-        });
+        }).catch(() => this.closeCoWebsite());
     }
 
     /**
@@ -65,23 +70,25 @@ class CoWebsiteManager {
      */
     public insertCoWebsite(callback: (cowebsite: HTMLDivElement) => Promise<void>): void {
         const cowebsiteDiv = this.load();
-        callback(cowebsiteDiv).then(() => {
+        this.currentOperationPromise = this.currentOperationPromise.then(() => callback(cowebsiteDiv)).then(() => {
             this.open();
             setTimeout(() => {
                 this.fire();
             }, animationTime)
-        });
+        }).catch(() => this.closeCoWebsite());
     }
 
     public closeCoWebsite(): Promise<void> {
-        return new Promise((resolve, reject) => {
+        this.currentOperationPromise = this.currentOperationPromise.then(() => new Promise((resolve, reject) => {
+            if(this.opened === iframeStates.closed) resolve(); //this method may be called twice, in case of iframe error for example
             const cowebsiteDiv = this.close();
             this.fire();
             setTimeout(() => {
                 resolve();
                 setTimeout(() => cowebsiteDiv.innerHTML = '', 500)
             }, animationTime)
-        });
+        }));
+        return this.currentOperationPromise;
     }
 
     public getGameSize(): {width: number, height: number} {
